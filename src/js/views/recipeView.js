@@ -2,7 +2,6 @@ import View from './View.js';
 
 // import icons from '../img/icons.svg'; //Parcel 1
 import icons from 'url:../../img/icons.svg'; //Parcel 2
-// 从npm下载的包不需要指定具体路径
 const Fraction = require('fractional').Fraction;
 class RecipeView extends View {
   _parentEl = document.querySelector('.recipe');
