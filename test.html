@@ -1,0 +1,26 @@
+<p id="para-01"><span id="span-02">First span</span></p>
+
+<div class="d0" data-message="cool">I am good</div>
+<div class="d1"><span>I am cool</span></div>
+<div class="d2">I am cool</div>
+<div class="d3">I am good</div>
+<p id="output"></p>
+
+<script type="text/javascript">
+  const output = document.getElementById('output');
+  const divList = document.getElementsByTagName('div');
+  output.innerHTML +=
+    'div 0 equals div 1: ' + divList[0].isEqualNode(divList[1]) + '<br/>';
+  output.innerHTML +=
+    'div 1 equals div 2: ' + divList[1].isEqualNode(divList[2]) + '<br/>';
+  output.innerHTML +=
+    'div 0 equals div 2: ' + divList[0].isEqualNode(divList[2]) + '<br/>';
+  output.innerHTML +=
+    'div 0 equals div 3: ' + divList[0].isEqualNode(divList[3]) + '<br/>';
+
+  const p01 = document.getElementById('para-01');
+  const p02 = document.getElementById('span-02');
+
+  console.log(p01.firstChild?.nodeValue);
+  console.log(p02.firstChild?.nodeValue);
+</script>

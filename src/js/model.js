@@ -64,6 +64,7 @@ export const updateServings = function (newServings) {
   state.recipe.ingredients.forEach(ing => {
     ing.quantity = (ing.quantity * newServings) / state.recipe.servings;
     //newQt = oldQt * (newServings / oldServings)
+    // 先求每人 的份量，再乘以新的总人数就可得到新的总份量
   });
   state.recipe.servings = newServings;
 };

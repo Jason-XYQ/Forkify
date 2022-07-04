@@ -21,7 +21,9 @@ export default class View {
     // 虚拟DOM
 
     const newDOM = document.createRange().createContextualFragment(newMarkup);
+    console.log(newDOM);
     const newElements = Array.from(newDOM.querySelectorAll('*'));
+    console.log(newElements);
     const curElements = Array.from(this._parentEl.querySelectorAll('*'));
 
     newElements.forEach((newEl, i) => {
@@ -34,6 +36,7 @@ export default class View {
       // 发生变化的文本节点
       if (
         !newEl.isEqualNode(curEl) &&
+        // 文本节点
         newEl.firstChild?.nodeValue.trim() != ''
       ) {
         // console.log('💥', newEl.firstChild, newEl.firstChild?.nodeValue.trim());
@@ -42,6 +45,7 @@ export default class View {
       //Update changed Attibutes
       // 元素节点的属性值 如data-update-to的值
       if (!newEl.isEqualNode(curEl)) {
+        console.log(Array.from(newEl.attributes));
         Array.from(newEl.attributes).forEach(attr =>
           curEl.setAttribute(attr.name, attr.value)
         );
