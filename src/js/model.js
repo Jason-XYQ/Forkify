@@ -9,12 +9,12 @@ export const state = {
     page: 1,
     resultsPerPage: RES_PER_PAGE,
   },
+  bookmarks: [],
 };
 
 export const loadRecipe = async function (id) {
   try {
     const data = await getJSON(`${API_URL}${id}`);
-    console.log(data);
 
     // let recipe = data.data.recipe;
     let { recipe } = data.data;
@@ -28,6 +28,12 @@ export const loadRecipe = async function (id) {
       ingredients: recipe.ingredients,
       sourceUrl: recipe.source_url,
     };
+    console.log(state.bookmarks);
+
+    //加载食谱时 只要之前标记过 的菜单就会在bookmarks中出现 当再次回到这个菜单时候只要从bookmarks里面寻找 只要有一个就可以将bookmarked设置为TRUE
+    if (state.bookmarks.some(bookmark => bookmark.id === id))
+      state.recipe.bookmarked = true;
+    else state.recipe.bookmarked = false;
   } catch (error) {
     // console.error(`${error} 💥💥💥`);
     //就算id错误 getJSON也会返回一个坏的(400)promise 但是状态还是fullfilled 所以需要在catch这里rethrow一个错误
@@ -48,6 +54,7 @@ export const loadSearchResults = async function (query) {
         image: rec.image_url,
       };
     });
+    state.search.page = 1;
   } catch (error) {
     console.error(`${error} 💥💥💥`);
     throw error;
@@ -67,3 +74,34 @@ export const updateServings = function (newServings) {
   });
   state.recipe.servings = newServings;
 };
+
+const persistBookmarks = function () {
+  localStorage.setItem('bookmarks', JSON.stringify(state.bookmarks));
+};
+
+export const addBookmark = function (recipe) {
+  // Add bookmark
+  state.bookmarks.push(recipe);
+  //Mark current recipe as bookmark
+  if (recipe.id === state.recipe.id) state.recipe.bookmarked = true;
+  persistBookmarks();
+};
+export const deleteBookmark = function (id) {
+  //Delete bookmark
+  const index = state.bookmarks.findIndex(el => el.id === id);
+  state.bookmarks.splice(index, 1);
+  //Mark current recipe as   NOT bookmark
+  if (id === state.recipe.id) state.recipe.bookmarked = false;
+  // console.log(state.bookmarks);
+  persistBookmarks();
+};
+const init = function () {
+  const storage = localStorage.getItem('bookmarks');
+  if (storage) state.bookmarks = JSON.parse(storage);
+};
+// init();
+
+const clearBookmarks = function () {
+  localStorage.clear();
+};
+clearBookmarks();

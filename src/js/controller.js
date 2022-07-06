@@ -3,6 +3,7 @@ import recipeView from './views/recipeView.js';
 import searchView from './views/searchView.js';
 import resultView from './views/resultView.js';
 import paginationView from './views/paginationView.js';
+import bookmarksView from './views/bookmarksView.js';
 
 //为了使旧的浏览器也能运行这个程序
 //polyfilling evrything else
@@ -38,6 +39,9 @@ const controlRecipe = async function () {
     //2) Rendering recipe
     //Control取得数据后调用View中的方法渲染页面
     recipeView.render(model.state.recipe);
+
+    //3)Updating bookmarks view
+    bookmarksView.update(model.state.bookmarks);
   } catch (err) {
     recipeView.renderError();
   }
@@ -84,11 +88,27 @@ const controlServings = function (updateTo) {
   // recipeView.render(model.state.recipe);
   recipeView.update(model.state.recipe);
 };
+const controlAddBookmark = function () {
+  //1) Add/remove bookmark
+  if (!model.state.recipe.bookmarked) model.addBookmark(model.state.recipe);
+  else model.deleteBookmark(model.state.recipe.id);
+  console.log(model.state.recipe);
+  //2)Update recipe view
+  recipeView.update(model.state.recipe);
+  //3)Render bookmarks
+  bookmarksView.render(model.state.bookmarks);
+};
+
+const conrtrolBookmarks = function () {
+  bookmarksView.render(model.state.bookmarks);
+};
 
 const init = function () {
   //订阅者
+  bookmarksView.addHandlerRender(conrtrolBookmarks);
   recipeView.addHandlerRender(controlRecipe);
   recipeView.addHandlerServings(controlServings);
+  recipeView.addHandlerAddBookmark(controlAddBookmark);
   searchView.addHandlerSearch(controlSearchResults);
   paginationView.addHandlerClick(controlPage);
 };
