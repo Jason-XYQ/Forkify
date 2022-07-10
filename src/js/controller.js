@@ -4,7 +4,7 @@ import searchView from './views/searchView.js';
 import resultView from './views/resultView.js';
 import paginationView from './views/paginationView.js';
 import bookmarksView from './views/bookmarksView.js';
-
+import addRecipeView from './views/addRecipeView.js';
 //为了使旧的浏览器也能运行这个程序
 //polyfilling evrything else
 import 'core-js/stable';
