@@ -1,3 +1,5 @@
+// Control调用model的方法获取数据  然后再调用View的方法渲染页面
+
 import * as model from './model.js';
 import recipeView from './views/recipeView.js';
 import searchView from './views/searchView.js';
@@ -29,19 +31,19 @@ const controlRecipe = async function () {
     recipeView.renderSpinner();
 
     // 0) Update results view to mark selected search result
+    // 左侧栏中选中的食物会出现高亮
     resultView.update(model.getSearchResultsPage());
+    //1)Updating bookmarks view
+    bookmarksView.update(model.state.bookmarks);
 
-    //1)Loading recipe
-    //Control调用model中的方法获取数据
+    //2)Loading recipe  Control让model去发请求拿数据
+    //Control调用model中的方法获取数据并存储在一个对象state.recipe中
     await model.loadRecipe(id);
     //aync function returns a promise BUG 此处不能少了await
     // const { recipe } = model.state;
-    //2) Rendering recipe
-    //Control取得数据后调用View中的方法渲染页面
+    //3) Rendering recipe  Control让recipeView将食谱数据渲染在页面中（右侧边栏）
+    //等数据返回后  Control取得数据后调用View中的方法渲染页面
     recipeView.render(model.state.recipe);
-
-    //3)Updating bookmarks view
-    bookmarksView.update(model.state.bookmarks);
   } catch (err) {
     recipeView.renderError();
   }
@@ -55,10 +57,10 @@ const controlSearchResults = async function () {
     const query = searchView.getQuery();
     // searchView.clearInput();
     if (!query) return;
-    // 2)Load search results
+    // 2)Load search results   Control让model去发请求拿数据
     await model.loadSearchResults(query);
 
-    //3)Render results
+    //3)Render results    Control让recipeView将食谱数据渲染在页面中（左侧边栏）
     resultView.render(model.getSearchResultsPage());
 
     //4)Render pagination button
@@ -69,7 +71,7 @@ const controlSearchResults = async function () {
     console.log(err);
   }
 };
-controlSearchResults();
+// controlSearchResults();
 
 const controlPage = function (gotoPage) {
   //3)Render New results
@@ -93,8 +95,12 @@ const controlAddBookmark = function () {
   if (!model.state.recipe.bookmarked) model.addBookmark(model.state.recipe);
   else model.deleteBookmark(model.state.recipe.id);
   console.log(model.state.recipe);
+
   //2)Update recipe view
+  // 点击订购按钮后高亮  只更新订购这个按钮 不需要重载整个页面  update非常好用COOL：
+
   recipeView.update(model.state.recipe);
+
   //3)Render bookmarks
   bookmarksView.render(model.state.bookmarks);
 };
@@ -103,16 +109,50 @@ const conrtrolBookmarks = function () {
   bookmarksView.render(model.state.bookmarks);
 };
 
+//Upload new Recipe
+
+const controlAddRecipe = async function (newRecipe) {
+  try {
+    // Show loading spinner
+    addRecipeView.renderSpinner();
+
+    // Upload the new recipe data
+    await model.uploadRecipe(newRecipe);
+    console.log(model.state.recipe);
+
+    // Render recipe
+    recipeView.render(model.state.recipe);
+
+    // Success message
+    addRecipeView.renderMessage();
+
+    // Change ID in URL
+    // pushState(state，title，url) 可以改变url但不需要重载页面
+    window.history.pushState(null, '', `#${model.state.recipe.id}`);
+    // window.history.back()
+
+    // Close form window
+    setTimeout(() => {
+      addRecipeView.toggleWindow();
+    }, 2500);
+    // Render bookmark view
+    bookmarksView.render(model.state.bookmarks);
+  } catch (error) {
+    addRecipeView.renderError(error);
+  }
+};
 const init = function () {
-  //订阅者
+  //订阅者: Code that wants to react:SUBSCRIBER
   bookmarksView.addHandlerRender(conrtrolBookmarks);
   recipeView.addHandlerRender(controlRecipe);
   recipeView.addHandlerServings(controlServings);
   recipeView.addHandlerAddBookmark(controlAddBookmark);
   searchView.addHandlerSearch(controlSearchResults);
   paginationView.addHandlerClick(controlPage);
+  addRecipeView.addHandlerUpload(controlAddRecipe);
 };
 init();
 
 // window.addEventListener('hashchange', controlRecipe);
 // window.addEventListener('load', controlRecipe);
+// ['hashchange','load'].forEach(ev=>window.addEventListener(ev,controlRecipe))

@@ -3,14 +3,16 @@ import View from './View.js';
 // import icons from '../img/icons.svg'; //Parcel 1
 import icons from 'url:../../img/icons.svg'; //Parcel 2
 var fracty = require('fracty');
+// 以下这个API用不了
 // import { Fraction } from 'fractional';
 class RecipeView extends View {
   _parentEl = document.querySelector('.recipe');
   _errorMessage = 'We could not find that recipe. Please try another one!';
   _message = '';
 
-  //发布者
+  //发布者: Code that knows when to react:PUBLISHER
   addHandlerRender(handler) {
+    // 监听地址栏变化和加载事件
     ['hashchange', 'load'].forEach(ev => window.addEventListener(ev, handler));
   }
 
@@ -18,9 +20,10 @@ class RecipeView extends View {
     this._parentEl.addEventListener('click', function (e) {
       const btn = e.target.closest('.btn--update-servings');
       if (!btn) return;
-      // const updateTo = +btn.dataset.updateTo;
+      // button上有个data属性 data-update-to  由css转化为js会去掉data 驼峰写法updateTo 存放在dataset
+      // NICEconst updateTo = +btn.dataset.updateTo;
       const { updateTo } = btn.dataset;
-
+      // 字符串转数字
       if (+updateTo > 0) handler(+updateTo);
     });
   }
@@ -80,8 +83,10 @@ class RecipeView extends View {
         </div>
       </div>
   
-      <div class="recipe__user-generated">
-     
+      <div class="recipe__user-generated ${this._data.key ? '' : 'hidden'}">
+       <svg>
+        <use href="${icons}#icon-user"></use>
+       </svg>
       </div>
       <button class="btn--round btn-bookmark">
         <svg class="">
@@ -96,6 +101,7 @@ class RecipeView extends View {
       <h2 class="heading--2">Recipe ingredients</h2>
       <ul class="recipe__ingredient-list">
       ${this._data.ingredients
+        // 将每一项成分都装入数组，之后再转换为一个长字符串
         .map(ing => {
           return `
         <li class="recipe__ingredient">
@@ -142,3 +148,4 @@ class RecipeView extends View {
 }
 export default new RecipeView();
 // 与页面的呈现相关  操作DOM
+// 直接导出一个实例对象，方便其他地方（会变得更简洁）引入该类，并使用类中的属性和方法（不然在其他地方引入了之后也要创建该类对象）

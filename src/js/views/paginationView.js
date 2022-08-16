@@ -2,6 +2,7 @@ import View from './View';
 import icons from 'url:../../img/icons.svg'; //Parcel 2
 class PaginationView extends View {
   _parentEl = document.querySelector('.pagination');
+  // 用户点击上一页和下一页的回调事件
   addHandlerClick(handler) {
     // 事件委托
     this._parentEl.addEventListener('click', function (e) {
@@ -12,15 +13,18 @@ class PaginationView extends View {
       // 给button手动添加了data属性 用来记录要跳转的页码
       //字符串转化为数字
       const gotoPage = +btn.dataset.goto;
+      // 真正执行controlPage函数的地方
       handler(gotoPage);
     });
   }
   _generateMarkup() {
+    // 总共的页数
     const numPages = Math.ceil(
       this._data.results.length / this._data.resultsPerPage
     );
     const curPage = this._data.page;
     console.log(numPages);
+
     //Page 1 and there are other pages
 
     if (curPage === 1 && numPages > 1) {
